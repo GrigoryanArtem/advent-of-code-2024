@@ -18,7 +18,7 @@ public class Day6(ILinesInputReader input) : IPuzzleSolver
     private const char OBSTRUCTION_SYMBOL = '#';
     private const char GUARD_SYMBOL = '^';
 
-    private const int NUMBER_OF_TASKS = 1;
+    private const int NUMBER_OF_TASKS = 128;
 
     #endregion
 
@@ -171,15 +171,14 @@ public class Day6(ILinesInputReader input) : IPuzzleSolver
 
     public string SolvePart2()
     {
-        //var chunkSize = (int)Math.Ceiling((double)_map.Length / NUMBER_OF_TASKS);
-        //var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
-        //    .Select(i => BrutForceAsync(i * chunkSize, chunkSize, _buffers[i]))
-        //    .ToArray();
+        var chunkSize = (int)Math.Ceiling((double)_map.Length - 2 * _sx / NUMBER_OF_TASKS);
+        var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
+            .Select(i => BrutForceAsync(_sx + i * chunkSize, chunkSize, _buffers[i]))
+            .ToArray();
 
-        //Task.WaitAll(tasks);
+        Task.WaitAll(tasks);
 
-        //return tasks.Sum(t => t.Result).ToString();
-        return BruteForce(_sx, _map.Length - 2 * _sx, _buffers[0]).ToString();
+        return tasks.Sum(t => t.Result).ToString();
     }
 
     #region Private methods
@@ -192,7 +191,7 @@ public class Day6(ILinesInputReader input) : IPuzzleSolver
         var jumpBuffer = new int[_map.Length, _directions.Length];
         
 
-        var end = Math.Min(start + count, _map.Length);
+        var end = Math.Min(start + count, _map.Length - _sx);
         int sum = 0;
 
         for (int i = start; i < end; i++)
